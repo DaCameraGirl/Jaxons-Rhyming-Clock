@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0b0f0c" />
+<meta name="description" content="Jaxon's Rhyming Clock — a retro arcade clock that teaches numbers and time with rhymes." />
+<title>Jaxon's Rhyming Clock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --neon: #39ff8b;
+    --neon-dim: #1f9e58;
+    --amber: #ffcf4d;
+    --pink: #ff5ea8;
+    --cyan: #5ad7ff;
+    --screen: #04140c;
+    --cabinet: #14171b;
+    --cabinet-edge: #2b3038;
+    --bezel: #0a0d10;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(8px, 3vw, 28px);
+    background:
+      radial-gradient(120% 90% at 50% 0%, #1b2230 0%, #0a0d12 55%, #05070a 100%);
+    font-family: 'VT323', monospace;
+    color: var(--neon);
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* faint moving grid in the background, behind the cabinet */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -50%;
+    background-image:
+      linear-gradient(rgba(57,255,139,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(57,255,139,0.06) 1px, transparent 1px);
+    background-size: 44px 44px;
+    transform: perspective(600px) rotateX(60deg);
+    transform-origin: center top;
+    animation: grid-pan 18s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+  @keyframes grid-pan { from { background-position: 0 0; } to { background-position: 0 44px; } }
+
+  /* ---------- Arcade cabinet ---------- */
+  .cabinet {
+    position: relative;
+    z-index: 1;
+    width: min(680px, 100%);
+    background: linear-gradient(180deg, #1c2026 0%, #0f1216 100%);
+    border-radius: 26px;
+    padding: clamp(12px, 2.5vw, 22px);
+    box-shadow:
+      0 30px 70px rgba(0,0,0,0.6),
+      inset 0 2px 0 rgba(255,255,255,0.06),
+      inset 0 0 0 2px var(--cabinet-edge);
+  }
+
+  /* Marquee / title */
+  .marquee {
+    text-align: center;
+    background: linear-gradient(180deg, #11151a, #0a0d11);
+    border-radius: 14px;
+    padding: clamp(12px, 2.5vw, 18px) 14px;
+    margin-bottom: clamp(12px, 2.4vw, 18px);
+    box-shadow: inset 0 0 0 2px var(--cabinet-edge), inset 0 0 30px rgba(0,0,0,0.6);
+  }
+  .marquee h1 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(11px, 3.1vw, 20px);
+    line-height: 1.5;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, var(--neon), var(--cyan), var(--amber), var(--pink), var(--neon));
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: var(--neon);
+    animation: marquee-shift 6s linear infinite;
+    filter: drop-shadow(0 0 8px rgba(57,255,139,0.45));
+  }
+  @keyframes marquee-shift { to { background-position: 300% 0; } }
+
+  /* Bezel around the CRT */
+  .bezel {
+    background: var(--bezel);
+    border-radius: 18px;
+    padding: clamp(10px, 2.2vw, 18px);
+    box-shadow: inset 0 0 0 2px #05080b, inset 0 6px 24px rgba(0,0,0,0.8);
+  }
+
+  /* The CRT screen */
+  .screen {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 14px / 10px;
+    background:
+      radial-gradient(130% 120% at 50% 18%, #0a2417 0%, var(--screen) 60%, #020a06 100%);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(6px, 1.6vh, 16px);
+    padding: clamp(10px, 3vw, 26px);
+    box-shadow:
+      inset 0 0 60px rgba(0,0,0,0.75),
+      inset 0 0 0 2px rgba(57,255,139,0.12);
+    cursor: crosshair;
+  }
+  /* gentle CRT bulge */
+  .screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow:
+      inset 0 0 120px rgba(0,0,0,0.55),
+      inset 0 0 26px rgba(57,255,139,0.08);
+  }
+  /* scanlines */
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0) 0px,
+      rgba(0,0,0,0) 2px,
+      rgba(0,0,0,0.22) 3px,
+      rgba(0,0,0,0.22) 3px
+    );
+    mix-blend-mode: multiply;
+    z-index: 6;
+    opacity: 0.7;
+  }
+  /* faint flicker */
+  .flicker {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: rgba(57,255,139,0.03);
+    z-index: 6;
+    animation: flicker 5s steps(60) infinite;
+  }
+  @keyframes flicker { 0%,100%{opacity:.5} 7%{opacity:.2} 9%{opacity:.7} 50%{opacity:.4} 52%{opacity:.8} }
+
+  .greeting {
+    position: relative;
+    z-index: 5;
+    font-size: clamp(18px, 4.4vw, 30px);
+    color: var(--amber);
+    letter-spacing: 1px;
+    text-shadow: 0 0 12px rgba(255,207,77,0.5);
+  }
+
+  /* Big number being learned */
+  .numbadge {
+    position: relative;
+    z-index: 5;
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(40px, 13vw, 90px);
+    line-height: 1;
+    color: var(--neon);
+    text-shadow: 0 0 18px rgba(57,255,139,0.65), 0 0 40px rgba(57,255,139,0.35);
+    animation: badge-pop 0.5s ease-out;
+  }
+  @keyframes badge-pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    60% { transform: scale(1.12); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Digital time */
+  .clock {
+    position: relative;
+    z-index: 5;
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(18px, 5.4vw, 34px);
+    letter-spacing: 1px;
+    color: #eafff3;
+    text-shadow: 0 0 10px rgba(57,255,139,0.7);
+    display: flex;
+    align-items: baseline;
+    gap: 0.35em;
+  }
+  .clock .colon { animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0.25; } }
+  .clock .ampm { font-size: 0.5em; color: var(--neon); }
+  .clock .secs { font-size: 0.5em; color: var(--neon-dim); }
+
+  /* Rhyme line */
+  .rhyme {
+    position: relative;
+    z-index: 5;
+    min-height: 3.4em;
+    max-width: 92%;
+    text-align: center;
+    font-size: clamp(20px, 5vw, 34px);
+    line-height: 1.25;
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(57,255,139,0.45);
+    white-space: pre-line;
+  }
+  .caret {
+    display: inline-block;
+    width: 0.5ch;
+    background: var(--neon);
+    margin-left: 1px;
+    animation: blink 0.7s steps(1) infinite;
+    color: transparent;
+  }
+
+  /* Floating pixel balloons */
+  .balloon {
+    position: absolute;
+    z-index: 4;
+    width: clamp(26px, 7vw, 46px);
+    height: clamp(34px, 9vw, 60px);
+    border-radius: 50% 50% 48% 48%;
+    cursor: pointer;
+    animation: float 4s ease-in-out infinite;
+    image-rendering: pixelated;
+    box-shadow: inset -6px -8px 0 rgba(0,0,0,0.18), inset 6px 6px 0 rgba(255,255,255,0.28);
+    will-change: transform;
+  }
+  .balloon::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -10px;
+    width: 2px;
+    height: 12px;
+    background: rgba(255,255,255,0.35);
+    transform: translateX(-50%);
+  }
+  .balloon:hover { filter: brightness(1.15); }
+  .balloon.pop { animation: pop 0.35s ease-out forwards; }
+  @keyframes float {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-18px) rotate(3deg); }
+  }
+  @keyframes pop {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+
+  .pixel {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    z-index: 7;
+    pointer-events: none;
+    animation: burst 0.7s ease-out forwards;
+  }
+  @keyframes burst {
+    to { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+  }
+
+  /* ---------- Control panel ---------- */
+  .panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: clamp(12px, 2.4vw, 18px);
+    padding: clamp(10px, 2vw, 14px) clamp(12px, 2.4vw, 18px);
+    background: linear-gradient(180deg, #181c22, #0e1116);
+    border-radius: 14px;
+    box-shadow: inset 0 0 0 2px var(--cabinet-edge);
+  }
+  .panel .power {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: clamp(14px, 3vw, 18px);
+    color: var(--neon-dim);
+    letter-spacing: 1px;
+  }
+  .power .led {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--neon);
+    box-shadow: 0 0 10px var(--neon);
+    animation: blink 2s steps(1) infinite;
+  }
+  .btns { display: flex; gap: 10px; }
+  .arcade-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(8px, 2.2vw, 11px);
+    color: #07140d;
+    background: var(--neon);
+    border: none;
+    border-radius: 999px;
+    padding: 10px 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--neon-dim), 0 0 14px rgba(57,255,139,0.5);
+    transition: transform 0.06s ease, box-shadow 0.06s ease;
+    user-select: none;
+  }
+  .arcade-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--neon-dim); }
+  .arcade-btn.alt { background: var(--amber); box-shadow: 0 4px 0 #b8860b, 0 0 14px rgba(255,207,77,0.5); }
+  .arcade-btn.alt:active { box-shadow: 0 1px 0 #b8860b; }
+  .arcade-btn.off { background: #444b54; color: #aab; box-shadow: 0 4px 0 #23272d; }
+
+  .hint {
+    text-align: center;
+    margin-top: 10px;
+    font-size: clamp(13px, 3vw, 17px);
+    color: rgba(57,255,139,0.5);
+    letter-spacing: 1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body::before, .flicker, .marquee h1, .balloon, .led, .clock .colon, .caret { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+  <main class="cabinet">
+    <div class="marquee"><h1>JAXON'S RHYMING CLOCK</h1></div>
+
+    <div class="bezel">
+      <div class="screen" id="screen" aria-label="Clock screen. Tap a balloon to pop it.">
+        <div class="greeting" id="greeting">Hello, Jaxon!</div>
+        <div class="numbadge" id="numbadge">3</div>
+        <div class="clock" id="clock"></div>
+        <div class="rhyme" id="rhyme"></div>
+        <div class="scanlines"></div>
+        <div class="flicker"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="power"><span class="led"></span> ON</div>
+      <div class="btns">
+        <button class="arcade-btn alt" id="rhymeBtn" type="button">NEW RHYME</button>
+        <button class="arcade-btn" id="soundBtn" type="button" aria-pressed="false">SOUND: OFF</button>
+      </div>
+    </div>
+    <p class="hint">Tap the floating balloons to pop them!</p>
+  </main>
+
+<script>
+(() => {
+  "use strict";
+
+  const greetingEl = document.getElementById('greeting');
+  const numbadgeEl = document.getElementById('numbadge');
+  const clockEl    = document.getElementById('clock');
+  const rhymeEl    = document.getElementById('rhyme');
+  const screenEl   = document.getElementById('screen');
+  const rhymeBtn   = document.getElementById('rhymeBtn');
+  const soundBtn   = document.getElementById('soundBtn');
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Two-line rhyme per hour number (1-12)
+  const hourRhymes = {
+    1:  "ONE! The very first to start —\nbright as a spark, with all my heart!",
+    2:  "TWO! A pair, a matching set —\nthe most fun that you can get!",
+    3:  "THREE! Tall as a leafy tree —\ncount them up: one, two, THREE!",
+    4:  "FOUR! Like wheels that roll and glide,\nzooming fast, side by side!",
+    5:  "FIVE! High-five, slap my hand —\nfive's the coolest in the land!",
+    6:  "SIX! Quick-quick, pick up sticks —\nsix little stars and clever tricks!",
+    7:  "SEVEN! Lucky, bright, and high —\nseven balloons up in the sky!",
+    8:  "EIGHT! It's great, can't hardly wait —\neight's the number we celebrate!",
+    9:  "NINE! You shine, you're doing fine —\nnine bright lights all in a line!",
+    10: "TEN! Count again, you're a pro —\nten little fingers, here we go!",
+    11: "ELEVEN! Two ones standing tall —\nthe bounciest number of them all!",
+    12: "TWELVE! A dozen, big and bold —\ntwelve balloons of green and gold!"
+  };
+
+  const minuteRhymes = {
+    0:  "Right on the hour — ding, ding, ding!",
+    15: "Quarter past — hear the minutes sing!",
+    30: "Half past now — we're halfway through!",
+    45: "Quarter to — almost something new!"
+  };
+
+  const balloonColors = ['#ff5ea8', '#5ad7ff', '#ffcf4d', '#39ff8b', '#b18cff', '#ff8a5a'];
+
+  function to12(h) { return h % 12 === 0 ? 12 : h % 12; }
+
+  function greetingFor(h) {
+    if (h >= 5  && h < 12) return "Good morning, Jaxon!";
+    if (h >= 12 && h < 17) return "Good afternoon, Jaxon!";
+    if (h >= 17 && h < 21) return "Good evening, Jaxon!";
+    return "Good night, Jaxon!";
+  }
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  // ---- Digital clock (updates every second) ----
+  function renderClock(now) {
+    const h12 = to12(now.getHours());
+    const m = pad(now.getMinutes());
+    const s = pad(now.getSeconds());
+    const ampm = now.getHours() < 12 ? 'AM' : 'PM';
+    clockEl.innerHTML =
+      `${h12}<span class="colon">:</span>${m}` +
+      `<span class="secs">:${s}</span><span class="ampm">${ampm}</span>`;
+  }
+
+  // ---- Rhyme typewriter ----
+  let typing = false;
+  let typeToken = 0;
+  function typeRhyme(text) {
+    const myToken = ++typeToken;
+    typing = true;
+    if (reduceMotion) {
+      rhymeEl.textContent = text;
+      typing = false;
+      return;
+    }
+    rhymeEl.innerHTML = '';
+    let i = 0;
+    (function step() {
+      if (myToken !== typeToken) return;          // a newer rhyme started
+      rhymeEl.innerHTML = text.slice(0, i) + '<span class="caret">.</span>';
+      if (i < text.length) {
+        i++;
+        setTimeout(step, 22);
+      } else {
+        rhymeEl.textContent = text;
+        typing = false;
+      }
+    })();
+  }
+
+  function rhymeFor(now) {
+    const h12 = to12(now.getHours());
+    const base = hourRhymes[h12];
+    const extra = minuteRhymes[now.getMinutes()];
+    return extra ? base + "\n" + extra : base;
+  }
+
+  // ---- Per-minute refresh of number, greeting, rhyme, balloons ----
+  let lastMinute = -1;
+  function refreshContent(now, force) {
+    const minute = now.getMinutes();
+    if (!force && minute === lastMinute) return;
+    lastMinute = minute;
+
+    const h12 = to12(now.getHours());
+    numbadgeEl.textContent = h12;
+    numbadgeEl.style.animation = 'none';
+    void numbadgeEl.offsetWidth;                  // restart pop animation
+    numbadgeEl.style.animation = '';
+
+    greetingEl.textContent = greetingFor(now.getHours());
+    typeRhyme(rhymeFor(now));
+    spawnBalloons();
+  }
+
+  // ---- Balloons ----
+  function spawnBalloons() {
+    screenEl.querySelectorAll('.balloon').forEach(b => b.remove());
+    const count = 5;
+    for (let i = 0; i < count; i++) addBalloon();
+  }
+
+  function addBalloon() {
+    const b = document.createElement('div');
+    b.className = 'balloon';
+    b.style.background = balloonColors[(Math.random() * balloonColors.length) | 0];
+    b.style.left = (10 + Math.random() * 78) + '%';
+    b.style.top  = (12 + Math.random() * 62) + '%';
+    b.style.animationDelay = (Math.random() * 2).toFixed(2) + 's';
+    b.addEventListener('click', () => popBalloon(b));
+    screenEl.appendChild(b);
+  }
+
+  function popBalloon(b) {
+    if (b.classList.contains('pop')) return;
+    b.classList.add('pop');
+    blip();
+    const rect = b.getBoundingClientRect();
+    const host = screenEl.getBoundingClientRect();
+    const cx = rect.left - host.left + rect.width / 2;
+    const cy = rect.top - host.top + rect.height / 2;
+    const color = b.style.background;
+    if (!reduceMotion) {
+      for (let i = 0; i < 8; i++) {
+        const p = document.createElement('div');
+        p.className = 'pixel';
+        p.style.background = color;
+        p.style.left = cx + 'px';
+        p.style.top = cy + 'px';
+        const ang = (Math.PI * 2 * i) / 8;
+        p.style.setProperty('--dx', Math.cos(ang) * 46 + 'px');
+        p.style.setProperty('--dy', Math.sin(ang) * 46 + 'px');
+        screenEl.appendChild(p);
+        setTimeout(() => p.remove(), 700);
+      }
+    }
+    setTimeout(() => { b.remove(); addBalloon(); }, 360);
+  }
+
+  // ---- Sound (WebAudio blip, off by default) ----
+  let soundOn = false;
+  let audioCtx = null;
+  function blip() {
+    if (!soundOn) return;
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = 'square';
+      o.frequency.setValueAtTime(440 + Math.random() * 440, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.12);
+      g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.14);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + 0.15);
+    } catch (e) { /* audio not available */ }
+  }
+
+  soundBtn.addEventListener('click', () => {
+    soundOn = !soundOn;
+    soundBtn.textContent = 'SOUND: ' + (soundOn ? 'ON' : 'OFF');
+    soundBtn.classList.toggle('off', !soundOn);
+    soundBtn.setAttribute('aria-pressed', String(soundOn));
+    if (soundOn) blip();
+  });
+
+  rhymeBtn.addEventListener('click', () => {
+    typeRhyme(rhymeFor(new Date()));
+    spawnBalloons();
+  });
+
+  // Auto-pop one balloon now and then for ambient life
+  if (!reduceMotion) {
+    setInterval(() => {
+      const live = screenEl.querySelectorAll('.balloon:not(.pop)');
+      if (live.length) popBalloon(live[(Math.random() * live.length) | 0]);
+    }, 9000);
+  }
+
+  // ---- Main loop ----
+  function tick() {
+    const now = new Date();
+    renderClock(now);
+    refreshContent(now, false);
+  }
+
+  refreshContent(new Date(), true);
+  renderClock(new Date());
+  setInterval(tick, 1000);
+})();
+</script>
+</body>
+</html>
