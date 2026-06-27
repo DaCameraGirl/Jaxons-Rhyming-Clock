@@ -41,7 +41,7 @@
 ---
 
 <p align="center"><img src="docs/readme-divider.svg" width="720" alt="" /></p>
-<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=070b14&height=50&section=header&text=%F0%9F%9B%A0%EF%B8%8F%20Built%20with&fontSize=22&fontColor=e6edf3" width="720" alt="🛠️ Built with" /></p>
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=waving&color=0:070b14,100:12102a&height=50&section=header&text=%F0%9F%9B%A0%EF%B8%8F%20Built%20with&fontSize=22&fontColor=e6edf3&animation=twinkling" width="720" alt="🛠️ Built with" /></p>
 
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
@@ -60,7 +60,7 @@ It is one self-contained `index.html` file. 🎯 No frameworks, no build step, n
 ---
 
 <p align="center"><img src="docs/readme-divider.svg" width="720" alt="" /></p>
-<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=070b14&height=50&section=header&text=%E2%9C%A8%20What%20it%20does&fontSize=22&fontColor=e6edf3" width="720" alt="✨ What it does" /></p>
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=waving&color=0:070b14,100:12102a&height=50&section=header&text=%E2%9C%A8%20What%20it%20does&fontSize=22&fontColor=e6edf3&animation=twinkling" width="720" alt="✨ What it does" /></p>
 
 
 - ⏰ Shows the live time on a glowing CRT arcade screen
@@ -75,7 +75,7 @@ It is one self-contained `index.html` file. 🎯 No frameworks, no build step, n
 ---
 
 <p align="center"><img src="docs/readme-divider.svg" width="720" alt="" /></p>
-<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=070b14&height=50&section=header&text=%F0%9F%9A%80%20Run%20it%20locally&fontSize=22&fontColor=e6edf3" width="720" alt="🚀 Run it locally" /></p>
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=waving&color=0:070b14,100:12102a&height=50&section=header&text=%F0%9F%9A%80%20Run%20it%20locally&fontSize=22&fontColor=e6edf3&animation=twinkling" width="720" alt="🚀 Run it locally" /></p>
 
 
 Open `index.html` in any browser, or serve the folder:
@@ -88,7 +88,7 @@ python -m http.server 8080
 ---
 
 <p align="center"><img src="docs/readme-divider.svg" width="720" alt="" /></p>
-<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=070b14&height=50&section=header&text=%F0%9F%93%A6%20Deploy&fontSize=22&fontColor=e6edf3" width="720" alt="📦 Deploy" /></p>
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=waving&color=0:070b14,100:12102a&height=50&section=header&text=%F0%9F%93%A6%20Deploy&fontSize=22&fontColor=e6edf3&animation=twinkling" width="720" alt="📦 Deploy" /></p>
 
 
 🌐 GitHub Pages serves the `main` branch root directly. A `.nojekyll` file is included so the page is served exactly as written (no Jekyll processing). Push to `main` and the live site updates automatically. ✅
